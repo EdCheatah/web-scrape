@@ -1,5 +1,6 @@
 package com.mindwaresrl.service.scrape;
 
+import com.microsoft.playwright.PlaywrightException;
 import com.mindwaresrl.common.DomRendering;
 import com.mindwaresrl.model.WebScrapeRequest;
 import com.mindwaresrl.model.WebScrapeResult;
@@ -30,12 +31,12 @@ public class WebScrapeService {
         }
     }
 
-    private static WebScrapeResult getWebScrapeResult(WebScrapeRequest webScrapeRequest, WebScrape webScrape) {
+    static WebScrapeResult getWebScrapeResult(WebScrapeRequest webScrapeRequest, WebScrape webScrape) {
         try {
             log.info("Using {} strategy for URL: {}", webScrape.getClass().getSimpleName(), webScrapeRequest.url());
             return webScrape.execute(webScrapeRequest);
-        } catch (IOException e) {
-            log.error("Running and consolidating web search results interrupted", e);
+        } catch (IOException | PlaywrightException e) {
+            log.error("Scrape failed for URL: {}", webScrapeRequest.url(), e);
             return WebScrapeResult.EMPTY_RESULT;
         }
     }

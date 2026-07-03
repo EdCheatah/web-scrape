@@ -5,6 +5,7 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitUntilState;
 import com.mindwaresrl.common.Conversion;
+import com.mindwaresrl.common.FakeUserAgent;
 import com.mindwaresrl.common.WebScrapePlaywrightManager;
 import com.mindwaresrl.model.WebScrapeRequest;
 import com.mindwaresrl.model.WebScrapeResult;
@@ -17,22 +18,26 @@ public class DynamicWebScrape implements WebScrape {
     @Override
     public WebScrapeResult execute(WebScrapeRequest webScrapeRequest) throws IOException {
         Browser browser = WebScrapePlaywrightManager.browser();
-
-        //TODO we need a way to update user agent
-        try (BrowserContext context = browser.newContext(new Browser.NewContextOptions()
-                .setViewportSize(1920, 1080)
-                .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-        )) {
-            Page page = context.newPage();
-
-            page.navigate(String.valueOf(webScrapeRequest.url()),
-                    new Page.NavigateOptions()
-                    .setWaitUntil(WaitUntilState.DOMCONTENTLOADED)
-                    .setTimeout(webScrapeRequest.timeout().toMillis()));
-
-            String htmlContent = page.content();
-
-            return Conversion.toWebScrapeResult(htmlContent);
+        try (BrowserContext context = newContext(browser)) {
+            return Conversion.toWebScrapeResult(renderHtml(context, webScrapeRequest));
         }
+    }
+
+    private static BrowserContext newContext(Browser browser) {
+        return browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080)
+                .setUserAgent(FakeUserAgent.chrome()));
+    }
+
+    private static String renderHtml(BrowserContext context, WebScrapeRequest webScrapeRequest) {
+        Page page = context.newPage();
+        page.navigate(String.valueOf(webScrapeRequest.url()), navigateOptions(webScrapeRequest));
+        return page.content();
+    }
+
+    private static Page.NavigateOptions navigateOptions(WebScrapeRequest webScrapeRequest) {
+        return new Page.NavigateOptions()
+                .setWaitUntil(WaitUntilState.DOMCONTENTLOADED)
+                .setTimeout(webScrapeRequest.timeout().toMillis());
     }
 }

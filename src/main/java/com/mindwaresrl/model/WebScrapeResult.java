@@ -3,7 +3,7 @@ package com.mindwaresrl.model;
 import java.time.Instant;
 
 public record WebScrapeResult(String markdown, String title, Instant timestamp) {
-    public static WebScrapeResult EMPTY_RESULT = new WebScrapeResult("undefined", "undefined", Instant.EPOCH);
+    public static final WebScrapeResult EMPTY_RESULT = new WebScrapeResult("undefined", "undefined", Instant.EPOCH);
 
     public WebScrapeResult {
         if (markdown == null || markdown.isBlank()) {

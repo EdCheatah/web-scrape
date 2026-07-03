@@ -6,5 +6,5 @@ import com.mindwaresrl.model.WebScrapeResult;
 import java.io.IOException;
 
 public interface WebScrape {
-    WebScrapeResult execute(WebScrapeRequest webScrapeRequest) throws IOException;;
+    WebScrapeResult execute(WebScrapeRequest webScrapeRequest) throws IOException;
 }
